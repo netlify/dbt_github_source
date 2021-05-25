@@ -1,16 +1,15 @@
-name: dbt Snowflake - PR Build
+name: dbt Snowflake (github_source) - PR Build
 
-on:
-  pull_request:
-    paths:
-      - 'snowflake_dbt/**'
+on: pull_request
 
 env:
-  DBT_PROFILE_TARGET: test
-  DBT_PROFILE_PASSWORD: ${{ secrets.DBT_PROFILE_SNOWFLAKE_PROD_PASSWORD }}
-  DBT_ARTIFACT_STATE_PATH: target/prod
-  DBT_DEFER_TO_STATE: false  # we're going to build everything starting out and update once dbt cloud is setup
-  DBT_CLOUD_API_KEY: ${{ secrets.DBT_CLOUD_API_KEY }}
+  CI_SNOWFLAKE_DBT_ACCOUNT: ${{ secrets.CI_SNOWFLAKE_DBT_ACCOUNT }}
+  CI_SNOWFLAKE_DBT_USER: ${{ secrets.CI_SNOWFLAKE_DBT_USER }}
+  CI_SNOWFLAKE_DBT_PASS: ${{ secrets.CI_SNOWFLAKE_DBT_PASS }}
+  CI_SNOWFLAKE_DBT_ROLE: ${{ secrets.CI_SNOWFLAKE_DBT_ROLE }}
+  CI_SNOWFLAKE_DBT_DATABASE: ${{ secrets.CI_SNOWFLAKE_DBT_DATABASE }}
+  CI_SNOWFLAKE_DBT_WAREHOUSE: ${{ secrets.CI_SNOWFLAKE_DBT_WAREHOUSE }}
+  CI_SNOWFLAKE_DBT_SCHEMA: dbt_pr_github_source_default
 
 jobs:
   pr_build:
@@ -30,31 +29,15 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install dbt & sqlfluff
-        working-directory: snowflake_dbt
+      - name: Install dbt
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r integration_tests/requirements.txt
 
-      - name: Install dbt deps
-        working-directory: snowflake_dbt
-        run: dbt deps --profiles-dir profiles
-
-      - name: Lint SQL updates
-        working-directory: snowflake_dbt
-        run: sqlfluff lint $(git diff --name-only main | grep -E '(^snowflake_dbt/models.*[.]sql$)' | sed 's/snowflake_dbt\///g')
-
-      - name: dbt pre-run setup
-        working-directory: snowflake_dbt
+      - name: dbt run
+        working-directory: integration_tests
         run: |
           export DBT_PROFILE_SCHEMA=dbt_pr_$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          # bash ../scripts/get_dbt_prod_artifacts.sh  # See DBT_DEFER_TO_STATE above
-          dbt deps --profiles-dir ./profiles
-          dbt seed --profiles-dir ./profiles
-
-      - name: dbt run modified
-        working-directory: snowflake_dbt
-        run: |
-          export DBT_PROFILE_SCHEMA=dbt_cloud_pr_$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          dbt run --profiles-dir ./profiles # -m state:modified  # See DBT_DEFER_TO_STATE above
-          dbt test --profiles-dir ./profiles # -m state:modified --exclude test_name:equal_rowcount  # See DBT_DEFER_TO_STATE above
+          dbt deps --profiles-dir ci
+          dbt run --profiles-dir ci
+          dbt test --profiles-dir ci
