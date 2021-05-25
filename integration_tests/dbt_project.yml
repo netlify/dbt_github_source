@@ -13,8 +13,6 @@ vars:
     github_database: raw
     github_schema: raw_fivetran_github
 
-    github_schema: github_source_integration_tests
-
 seeds:
   +quote_columns: "{{ true if target.type == 'redshift' else false }}"
   github_source_integration_tests:
