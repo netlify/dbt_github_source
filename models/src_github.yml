@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: github
-    database: "{{var ('github_database', target.database)}}"
-    schema: "{{var ('github_schema', 'github')}}"
+    database: "{{ var('github_database', target.database) }}"
+    schema: "{{ var('github_schema', 'github') }}"
     loader: fivetran
     loaded_at_field: _fivetran_synced
     freshness:
