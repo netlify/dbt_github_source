@@ -1,0 +1,60 @@
+name: dbt Snowflake - PR Build
+
+on:
+  pull_request:
+    paths:
+      - 'snowflake_dbt/**'
+
+env:
+  DBT_PROFILE_TARGET: test
+  DBT_PROFILE_PASSWORD: ${{ secrets.DBT_PROFILE_SNOWFLAKE_PROD_PASSWORD }}
+  DBT_ARTIFACT_STATE_PATH: target/prod
+  DBT_DEFER_TO_STATE: false  # we're going to build everything starting out and update once dbt cloud is setup
+  DBT_CLOUD_API_KEY: ${{ secrets.DBT_CLOUD_API_KEY }}
+
+jobs:
+  pr_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Install Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install dbt & sqlfluff
+        working-directory: snowflake_dbt
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install dbt deps
+        working-directory: snowflake_dbt
+        run: dbt deps --profiles-dir profiles
+
+      - name: Lint SQL updates
+        working-directory: snowflake_dbt
+        run: sqlfluff lint $(git diff --name-only main | grep -E '(^snowflake_dbt/models.*[.]sql$)' | sed 's/snowflake_dbt\///g')
+
+      - name: dbt pre-run setup
+        working-directory: snowflake_dbt
+        run: |
+          export DBT_PROFILE_SCHEMA=dbt_pr_$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          # bash ../scripts/get_dbt_prod_artifacts.sh  # See DBT_DEFER_TO_STATE above
+          dbt deps --profiles-dir ./profiles
+          dbt seed --profiles-dir ./profiles
+
+      - name: dbt run modified
+        working-directory: snowflake_dbt
+        run: |
+          export DBT_PROFILE_SCHEMA=dbt_cloud_pr_$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          dbt run --profiles-dir ./profiles # -m state:modified  # See DBT_DEFER_TO_STATE above
+          dbt test --profiles-dir ./profiles # -m state:modified --exclude test_name:equal_rowcount  # See DBT_DEFER_TO_STATE above

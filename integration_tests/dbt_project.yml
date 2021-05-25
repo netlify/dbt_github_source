@@ -3,7 +3,9 @@ version: '0.2.1'
 config-version: 2
 
 profile: 'integration_tests'
-
+clean-targets:
+  - 'target'
+  - 'dbt_modules'
 vars:
   github_source:
     issue_assignee:               "{{ ref('github_issue_assignee_data') }}"
@@ -19,7 +21,7 @@ vars:
     requested_reviewer_history:   "{{ ref('github_requested_reviewer_history_data') }}"
     team:                         "{{ ref('github_team_data') }}"
     user:                         "{{ ref('github_user_data') }}"
-    
+
     github_schema: github_source_integration_tests
 
 seeds:
