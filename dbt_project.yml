@@ -10,7 +10,7 @@ models:
     +schema: staging
     +materialized: table
     tmp:
-      +materialized: ephemeral
+      +materialized: view
 
 vars:
   github_source:
