@@ -1,9 +1,13 @@
-with repository as (
+with
 
-    select *
-    from {{ ref('stg_github_repository_tmp') }}
+repository as (
 
-), macro as (
+    select * from {{ source('github', 'repository') }}
+
+),
+
+macro as (
+
     select
         /*
         The below macro is used to generate the correct SQL for package staging models. It takes a list of columns
@@ -12,24 +16,23 @@ with repository as (
 
         For more information refer to our dbt_fivetran_utils documentation (https://github.com/fivetran/dbt_fivetran_utils.git).
         */
-            {{
-            fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_github_repository_tmp')),
-                staging_columns=get_repository_columns()
-            )
-        }}
+        {{ fivetran_utils.fill_staging_columns(
+            source_columns=adapter.get_columns_in_relation(source('github', 'repository')),
+            staging_columns=get_repository_columns()
+        ) }}
 
     from repository
 
-), fields as (
+),
+
+fields as (
 
     select
-      id as repository_id,
-      full_name,
-      private as is_private
-
+        id as repository_id,
+        full_name,
+        private as is_private
     from macro
+
 )
 
-select *
-from fields
+select * from fields

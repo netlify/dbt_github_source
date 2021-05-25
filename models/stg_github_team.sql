@@ -1,8 +1,8 @@
+with
 
-with base as (
+base as (
 
-    select *
-    from {{ ref('stg_github_team_tmp') }}
+    select * from {{ source('github', 'team') }}
 
 ),
 
@@ -16,16 +16,15 @@ fields as (
 
         For more information refer to our dbt_fivetran_utils documentation (https://github.com/fivetran/dbt_fivetran_utils.git).
         */
-        {{
-            fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_github_team_tmp')),
-                staging_columns=get_team_columns()
-            )
-        }}
-
+        {{ fivetran_utils.fill_staging_columns(
+            source_columns=adapter.get_columns_in_relation(source('github', 'team')),
+            staging_columns=get_team_columns()
+        ) }}
     from base
 
-), final as (
+),
+
+final as (
 
     select
         id as team_id,
@@ -35,7 +34,7 @@ fields as (
         privacy,
         slug
     from fields
+
 )
 
-select *
-from final
+select * from final

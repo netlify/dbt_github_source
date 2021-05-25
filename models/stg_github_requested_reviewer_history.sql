@@ -1,9 +1,13 @@
-with requested_reviewer_history as (
+with
 
-    select *
-    from {{ ref('stg_github_requested_reviewer_history_tmp') }}
+requested_reviewer_history as (
 
-), macro as (
+    select * from {{ source('github', 'requested_reviewer_history') }}
+
+),
+
+macro as (
+
     select
         /*
         The below macro is used to generate the correct SQL for package staging models. It takes a list of columns
@@ -12,25 +16,23 @@ with requested_reviewer_history as (
 
         For more information refer to our dbt_fivetran_utils documentation (https://github.com/fivetran/dbt_fivetran_utils.git).
         */
-        {{
-            fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_github_requested_reviewer_history_tmp')),
-                staging_columns=get_requested_reviewer_history_columns()
-            )
-        }}
-
+        {{ fivetran_utils.fill_staging_columns(
+            source_columns=adapter.get_columns_in_relation(source('github', 'requested_reviewer_history')),
+            staging_columns=get_requested_reviewer_history_columns()
+        ) }}
     from requested_reviewer_history
 
-), fields as (
+),
+
+fields as (
 
     select
-      pull_request_id,
-      created_at,
-      requested_id,
-      removed
-
+        pull_request_id,
+        created_at,
+        requested_id,
+        removed
     from macro
+
 )
 
-select *
-from fields
+select * from fields
