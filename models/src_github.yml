@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: github
-    database: "{{var ('github_database', target.database)}}"
-    schema: "{{var ('github_schema', 'github')}}"
+    database: "{{ var('github_database', target.database) }}"
+    schema: "{{ var('github_schema', 'github') }}"
     loader: fivetran
     loaded_at_field: _fivetran_synced
     freshness:
@@ -40,7 +40,7 @@ sources:
             description: Foreign key that references the issue table
           - name: label
             description: Text of the label
-            
+
       - name: issue_comment
         loaded_at_field: _fivetran_synced
         description: Table that contains comments made on issues
@@ -106,7 +106,7 @@ sources:
             description: Whether the review was an approval, request for change, comment, dismissal.
           - name: user_id
             description: Foreign key that references the user table, representing the user that reviewed the pull request.
-            
+
       - name: pull_request
         loaded_at_field: _fivetran_synced
         description: A special type of issue that is created when a user wants to merge one branch of code into another
@@ -127,7 +127,7 @@ sources:
             description: Reference to the respective repository for the record.
           - name: team_id
             description: Reference to the respective team for the record.
-            
+
       - name: repository
         description: Table representing the file structure of a directory under git control
         freshness: null
@@ -140,7 +140,7 @@ sources:
             description: The name of the git repository.
           - name: private
             description: Boolean field indicating whether the repository is private (true) or public (false).
-            
+
       - name: requested_reviewer_history
         loaded_at_field: _fivetran_synced
         description: Table containing when a user requests another user to review a pull request
@@ -169,7 +169,7 @@ sources:
             description: Type of privacy permissions associated with the team.
           - name: slug
             description: Url friendly version of the team name.
-            
+
       - name: user
         description: Table representing contributors to a git project
         freshness: null
