@@ -29,7 +29,7 @@ with github_user as (
       id as user_id,
       login as login_name,
       name,
-      company
+      company,
       type,
       site_admin,
       blog,
