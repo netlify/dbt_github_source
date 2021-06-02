@@ -31,7 +31,7 @@ fields as (
     select
         id as user_id,
         login as login_name,
-        type as user_type,
+        "TYPE" as user_type,
         site_admin,
         name as user_name,
         company,
