@@ -5,7 +5,7 @@ models:
     description: Table with the current user(s) assigned to an issue
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
+          combination_of_columns:
           - issue_id
           - user_id
     columns:
@@ -18,7 +18,7 @@ models:
     description: Table to track when an issue is closed or re-opened
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
+          combination_of_columns:
           - issue_id
           - updated_at
     columns:
@@ -36,7 +36,7 @@ models:
         description: Foreign key that references the issue table
       - name: label
         description: Text of the label
-         
+
   - name: stg_github__issue_comment
     description: Table that contains comments made on issues
     columns:
@@ -107,7 +107,7 @@ models:
         description: Whether the review was an approval, request for change, comment, dismissal.
       - name: user_id
         description: Foreign key that references the user table, representing the user that reviewed the pull request.
-        
+
   - name: stg_github__pull_request
     description: A special type of issue that is created when a user wants to merge one branch of code into another
     columns:
@@ -131,10 +131,10 @@ models:
         tests:
           - not_null
       - name: team_id
-        description: Reference to the respective team for the record. 
+        description: Reference to the respective team for the record.
         tests:
           - not_null
-        
+
   - name: stg_github__repository
     description: Table representing the file structure of a directory under git control
     freshness: null
@@ -148,7 +148,7 @@ models:
         description: The name of the git repository.
       - name: is_private
         description: Boolean field indicating whether the repository is private (true) or public (false).
-        
+
   - name: stg_github__requested_reviewer_history
     description: Table containing when a user requests another user to review a pull request
     columns:
@@ -160,7 +160,7 @@ models:
         description: Foreign key that references the user table, representing the user that was requested to review a PR.
       - name: removed
         description: Boolean variable indicating if the requester was removed from the PR (true) or added to the PR (false).
-  
+
   - name: stg_github__team
     description: Table containing teams and team details
     columns:
@@ -195,3 +195,6 @@ models:
         description: The name of the user
       - name: company
         description: The  company of the user.
+      - name: type
+        identifier: TYPE
+        quote: true

@@ -30,7 +30,7 @@ with github_user as (
       login as login_name,
       name,
       company,
-      "TYPE",
+      type,
       site_admin,
       blog,
       location,
