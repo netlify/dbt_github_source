@@ -31,9 +31,9 @@ fields as (
     select
         id as user_id,
         login as login_name,
-        type,
+        type as user_type,
         site_admin,
-        name,
+        name as user_name,
         company,
         blog,
         location,
