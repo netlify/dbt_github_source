@@ -26,10 +26,18 @@ with github_user as (
 ), fields as (
 
     select
-      id as user_id,
-      login as login_name,
-      name,
-      company
+        id as user_id,
+        login as login_name,
+        type,
+        site_admin,
+        name,
+        company,
+        blog,
+        location,
+        hireable,
+        bio,
+        created_at,
+        updated_at,
 
     from macro
 )
