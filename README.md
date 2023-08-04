@@ -2,7 +2,7 @@
 
 This package models GitHub data from [Fivetran's connector](https://fivetran.com/docs/applications/GitHub). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1lx6ez7-x-s-n2JCnCi3SjG4XMmx9ysNUvaNCaWc3I_I/edit).
 
-This package enriches your Fivetran data by doing the following:
+This package enriches your Fivetran data by doing the following
 * Adds descriptions to tables and columns that are synced using Fivetran
 * Adds freshness tests to source data
 * Adds column-level testing where applicable. For example, all primary keys are tested for uniqueness and non-null values.
